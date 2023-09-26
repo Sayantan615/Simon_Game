@@ -1,31 +1,44 @@
 const buttonArr = ["red", "blue", "green", "yellow"];
-var GamePattren = [];
-var UserClickPattren = [];
+let GamePattren = [];
+let UserClickPattren = [];
+let level = 0;
+let GameStatus = false;
 
-var level = 0;
-let bool = false;
-$(document).keydown(function () {
-  if (!bool) {
+const gameCall = () => {
+  if (!GameStatus) {
     $("#level-title").text("level " + level);
+    console.log("Game Start called");
     nextSequence();
-    bool = true;
+    GameStatus = true;
   }
-});
+};
+
+const newGame = () => {
+  if (GameStatus) {
+    startOver();
+  }
+  GameStatus = false;
+};
+
+$(document).on("click", gameCall);
+$(document).keydown(gameCall);
+$("#new-game").click(newGame);
 
 $(".btn").click(function () {
-  const UserChosenColor = $(this).attr("id");
+  if (GameStatus) {
+    const UserChosenColor = $(this).attr("id");
 
-  UserClickPattren.push(UserChosenColor);
+    UserClickPattren.push(UserChosenColor);
 
-  PlaySound(UserChosenColor);
-  animatePress(UserChosenColor);
+    PlaySound(UserChosenColor);
+    animatePress(UserChosenColor);
 
-  checkAnswer(UserClickPattren.length - 1);
+    checkAnswer(UserClickPattren.length - 1);
+  }
 });
 
 function checkAnswer(currlevel) {
   if (GamePattren[currlevel] == UserClickPattren[currlevel]) {
-    console.log("success");
     if (UserClickPattren.length === GamePattren.length) {
       setTimeout(function () {
         nextSequence();
@@ -33,27 +46,25 @@ function checkAnswer(currlevel) {
     }
   } else {
     $("body").addClass("game-over");
-    setTimeout(function(){
+    setTimeout(function () {
       $("body").removeClass("game-over");
     }, 200);
 
-    $("#level-title").text("Game Over, Press Any Key to Restart");
+    $("#level-title").text("Game Over, Press New Game to Restart");
 
-    var worng = new Audio("sounds/worng.mp3")
-    worng.play();
+    // var worng = new Audio("sounds/worng.mp3");
+    // worng.play();
     startOver();
-    console.log("boo!!!");
   }
 }
 
-
-function startOver(){
+function startOver() {
   level = 0;
-  bool = false;
   GamePattren = [];
 }
 
 function nextSequence() {
+  console.log("Next Sequence");
   UserClickPattren = [];
   level++;
   $("#level-title").text("level " + level);
@@ -81,3 +92,4 @@ function animatePress(currColor) {
     $("#" + currColor).removeClass("pressed");
   }, 100);
 }
+
